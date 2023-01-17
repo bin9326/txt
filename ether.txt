@@ -1,0 +1,184 @@
+﻿IMPLEMENT ETHERCHANNEL
+Part 1: Build the network.
+Use the table below to build the switch topology.
+     
+Step 2: Name the devices.
+Step 3: Connect the devices.
+     
+
+
+Part 2: Configure EtherChannel
+Open configuration window On each switch, configure the ports that will be used in the Port Channels as static trunk ports.
+Step 1: Configure a PAgP EtherChannel.
+Follow the procedure that was used in previous activities to configure Port Channel 1 as a PAgP EtherChannel between SWA and SWB.
+Both sides should negotiate the EtherChannel.
+
+
+
+
+In Switch 1(swa):
+Switch>en
+Switch#conf t
+Enter configuration commands, one per line. End with CNTL/Z.
+Switch(config)#int range g0/1-2
+Switch(config-if-range)#switchport mode trunk
+Switch(config-if-range)#channel-group 1 mode desirable
+Switch(config-if-range)#no shut
+Switch(config-if-range)#exit
+
+
+Switch 2(swb)
+Switch>en
+Switch#conf t
+Enter configuration commands, one per line. End with CNTL/Z.
+Switch(config)#int range g0/1-2
+Switch(config-if-range)#switchport mode trunk
+Switch(config-if-range)#channel-group 1 mode desirable
+Switch(config-if-range)#no shut
+Switch(config-if-range)#exit
+
+
+Step 2: Configure a LACP EtherChannel.
+Configure Port Channel 2 as an LACP channel between SWA and SWC.
+Both sides should negotiate the EtherChannel.
+
+
+Switch 1 (swa)
+Switch(config)#int range fa0/21-22
+Switch(config-if-range)#switchport mode trunk
+Switch(config-if-range)#channel-group 2 mode active
+Switch(config-if-range)#no shut
+Switch(config-if-range)#exit
+
+
+
+
+Switch 3 (swc)
+Switch>en
+Switch#conf t
+Enter configuration commands, one per line. End with CNTL/Z.
+Switch(config)#int range fa0/21-22
+Switch(config-if-range)#switchport mode trunk
+Switch(config-if-range)#channel-group 2 mode active
+Switch(config-if-range)#no shut
+Switch(config-if-range)#exit
+
+
+Step 3: Configure a Backup LACP
+EtherChannel Configure Port Channel 3 channel as an LACP channel between SWB and SWC. In this case, SWC initiates negotiation with SWB.
+SWB does not initiate negotiation of the channel
+
+
+Switch3(swc)
+Switch(config)#int range fa0/23-24
+Switch(config-if-range)#switchport mode trunk
+Switch(config-if-range)#channel-group 3 mode active
+Switch(config-if-range)#no shut
+Switch(config-if-range)#exit
+
+
+Switch2(swb)
+Switch>en
+Switch#conf t
+Enter configuration commands, one per line. End with CNTL/Z.
+Switch(config)#int range fa0/23-24
+Switch(config-if-range)#switchport mode trunk
+Switch(config-if-range)#channel-group 3 mode passive
+Switch(config-if-range)#no shut
+Switch(config-if-range)#exit
+
+
+Output to see all the etherchannel connections
+Go to any one switch and write the follow command
+
+
+Swc
+Switch#show etherchannel summary
+Flags: D - down P - in port-channel
+I - stand-alone s - suspended
+H - Hot-standby (LACP only)
+R - Layer3 S - Layer2
+U - in use f - failed to allocate aggregator
+u - unsuitable for bundling
+w - waiting to be aggregated
+d - default port
+
+
+
+
+Number of channel-groups in use: 2
+Number of aggregators: 2
+
+
+Group Port-channel Protocol Ports
+------+-------------+-----------+----------------------------------------------
+
+
+2 Po2(SU) LACP Fa0/21(P) Fa0/22(I)
+3 Po3(SU) LACP Fa0/23(D) Fa0/24(P)
+
+
+Swa
+
+
+Switch#show etherchannel summary
+Flags: D - down P - in port-channel
+I - stand-alone s - suspended
+H - Hot-standby (LACP only)
+R - Layer3 S - Layer2
+U - in use f - failed to allocate aggregator
+u - unsuitable for bundling
+w - waiting to be aggregated
+d - default port
+
+
+
+
+Number of channel-groups in use: 2
+Number of aggregators: 2
+
+
+Group Port-channel Protocol Ports
+------+-------------+-----------+----------------------------------------------
+
+
+1 Po1(SU) PAgP Gig0/1(P) Gig0/2(P)
+2 Po2(SU) LACP Fa0/21(P) Fa0/22(D)
+
+
+
+
+
+
+Swb
+
+
+Switch#show etherchannel summary
+Flags: D - down P - in port-channel
+I - stand-alone s - suspended
+H - Hot-standby (LACP only)
+R - Layer3 S - Layer2
+U - in use f - failed to allocate aggregator
+u - unsuitable for bundling
+w - waiting to be aggregated
+d - default port
+
+
+
+
+Number of channel-groups in use: 2
+Number of aggregators: 2
+
+
+Group Port-channel Protocol Ports
+------+-------------+-----------+----------------------------------------------
+
+
+1 Po1(SU) PAgP Gig0/1(P) Gig0/2(P)
+3 Po3(SU) LACP Fa0/23(I) Fa0/24(P)
+
+
+Checking trunking
+
+
+Swc

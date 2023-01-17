@@ -1,0 +1,152 @@
+﻿Observe STP Topology Changes and Implement RSTP
+Topology
+     
+
+
+Addressing Table
+Device
+	Interface
+	IPv4 Address
+	D1
+	VLAN1
+	10.0.0.1/8
+	D2
+	VLAN1
+	10.0.0.2/8
+	A1
+	VLAN1
+	10.0.0.3/8
+	
+
+Part 1:  Build the Network and Configure Basic Device Settings and Interface Addressing
+In Part 1, you will set up the network topology and configure basic settings and interface addressing on routers.
+Step 1:  Cable the network as shown in the topology.
+Attach the devices as shown in the topology diagram, and cable as necessary.
+Step 2:  Configure basic settings for each switch.
+Console into each switch, enter global configuration mode, and apply the basic settings and interface addressing. The startup configuration is provided below for each switch in the topology
+Switch D1
+hostname D1
+spanning-tree mode pvst
+line con 0
+exec-timeout 0 0
+logging synchronous
+exit
+interface range g1/0/1-24
+ shutdown
+ exit
+
+
+interface range g1/0/1, g1/0/5-6
+ switchport mode trunk
+ no shutdown
+ exit
+
+
+vlan 2
+ name SecondVLAN
+ exit
+
+
+interface vlan 1
+ ip address 10.0.0.1 255.0.0.0
+ no shut
+ exit
+
+
+Switch D2
+hostname D2
+spanning-tree mode pvst
+line con 0
+exec-timeout 0 0
+logging synchronous
+exit
+
+
+interface range g1/0/1-24
+shutdown
+exit
+
+
+interface range g1/0/1, g1/0/5-6
+switchport mode trunk
+no shutdown
+exit
+
+
+vlan 2
+ name SecondVLAN
+ exit
+
+
+interface vlan 1
+ip address 10.0.0.2 255.0.0.0
+no shut
+exit
+
+
+Switch A1
+hostname A1
+spanning-tree mode pvst
+line con 0
+ exec-timeout 0 0
+ logging synchronous
+ exit
+
+
+interface range f0/1-24, g0/1-2
+ shutdown
+ exit
+
+
+interface range f0/1-4
+ switchport mode trunk
+ no shutdown
+ exit
+
+
+vlan 2
+ name SecondVLAN
+ exit
+
+
+interface vlan 1
+ip address 10.0.0.3 255.0.0.0
+no shut
+exit
+Part 2:  Discover the Default Spanning Tree
+Step 1:  Find the root bridge.
+issue the command show spanning-tree command all switches
+     
+
+
+     
+
+
+     
+From above it is seen that D2 is the root Port as well as MAC address of D2 is minimum compared to D1 and A1.
+Our topology does not really illustrate the difference between port cost and path cost very well, so we will introduce a change in the network to achieve this. At D2, shutdown the g1/0/1 interface. The result of this is that D1 will have to change the port it considers root, and we will then see the
+difference between port cost and path cost.
+D2(config)# interface g1/0/1    agar topolofy me a1 root hai to ye a1 me karna hai
+D2(config-if)# shutdown
+Now in d1,
+D2# show spanning-tree
+     
+The root path cost is now 38, while the root port cost is 19. For D1 to reach the root bridge D2, it must traverse two FastEthernet links, and 19 times 2 is 38.
+Part 3:  Implement and Observe Rapid Spanning Tree Protocol
+On D1, issue the debug spanning-tree events command, and then issue the shutdown command for interface g1/0/1 and observe the output.
+D1# debug spanning-tree events
+D1# config t
+D1(config)# interface g1/0/1
+D1(config-if)# shutdown
+Now change the mode tp rapid spanning tree mode in D2 and then run no shut comman in D1 also  observe the time taken to connect
+
+
+            D2(config)# spanning-tree mode rapid-pvst
+D1(config-if)no shut
+   2.Also change the mode of spanning tree in A1 and observe the changes
+A1(config)# spanning-tree mode rapid-pvst
+A1(config)#
+Dec 24 13:31:51.023: %LINEPROTO-5-UPDOWN: Line protocol on Interface Vlan1, changed state to down
+Dec 24 13:31:51.081: %LINEPROTO-5-UPDOWN: Line protocol on Interface Vlan1, changed state to up
+A1(config)#
+A1 was the last switch that was configured for RSTP. As you can see, interface VLAN1 was only down for 0.048 seconds. This is the “rapid” in rapid spanning tree.

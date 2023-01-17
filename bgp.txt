@@ -1,0 +1,110 @@
+﻿Implement BGP Communities
+Topology
+     
+Addressing Table
+Device
+	Interface
+	IP Address
+	Subnet Mask
+	Default Gateway
+	R1
+	Fa0/0
+	10.0.0.1
+	255.0.0.0
+	N/A
+	R1
+	S0/0/0
+	40.0.0.1
+	255.0.0.0
+	N/A
+	R1
+	S0/0/1
+	60.0.0.1
+	255.0.0.0
+	N/A
+	R2
+R2
+R2
+	Fa0/0
+	20.0.0.1
+	255.0.0.0
+	N/A
+	S0/0/0
+	40.0.0.2
+	255.0.0.0
+	N/A
+	S0/0/1
+	50.0.0.1
+	255.0.0.0
+	N/A
+	R3
+R3
+R3
+	Fa0/0
+	30.0.0.1
+	255.0.0.0
+	N/A
+	S0/0/1
+	50.0.0.2
+	255.0.0.0
+	N/A
+	S0/0/0
+	60.0.0.2
+	255.0.0.0
+	N/A
+	PC-A
+	Fa0/0
+	10.0.0.2
+	255.0.0.0
+	10.0.0.1
+	PC-B
+	Fa0/0
+	20.0.0.2
+	255.0.0.0
+	20.0.0.1
+	PC-C
+	Fa0/0
+	30.0.0.2
+	255.0.0.0
+	30.0.0.1
+	
+
+Part 1: Build the network.
+Step 1: Obtain the devices that are required.
+Step 2: Name the devices.
+Step 3: Connect the devices. According to the connection table
+
+
+Part 2: Configure BGP
+
+
+Step 1: Configuring Bgp in each router with specific address
+Go to each router and configure there neighbour and assign the area
+For Router 0 , consider neighbor address 40.0.0.2 and 60.0.0.2
+For Router 1 , consider neighbor address 40.0.0.1 and 50.0.0.2
+For Router 2 , consider neighbor address 50.0.0.1 and 60.0.0.1
+
+
+R1:
+Router(config)#router bgp 100
+Router(config-router)#neighbor 40.0.0.2 remote-as 200
+Router(config-router)# neighbor 60.0.0.2 remote-as 300
+Router(config-router)#network 10.0.0.0 mask 255.0.0.0
+Router(config-router)#exit
+     
+R2
+Router(config)#router bgp 200
+Router(config-router)#neighbor 40.0.0.1 remote-as 100
+Router(config-router)# neighbor 50.0.0.2 remote-as 300
+Router(config-router)#network 20.0.0.0 mask 255.0.0.0
+Router(config-router)#exit
+     
+R3
+Router(config)#router bgp 300
+Router(config-router)#neighbor 60.0.0.1 remote-as 100
+Router(config-router)# neighbor 50.0.0.1 remote-as 200
+Router(config-router)#network 30.0.0.0 mask 255.0.0.0
+Router(config-router)#exit
+     
+Step 2 Ping from PC to check connection
+Ping from PC-C to PC-B

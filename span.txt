@@ -1,0 +1,154 @@
+﻿Implement span technologies (switch port analyzer)
+        
+3A Implement span technologies (switch port analyzer)
+Topology:
+     
+Addressing Table:
+
+
+Device
+	Interface
+	IP Address
+	Subnet Mask
+	Default Gateway 
+	R1
+	Fa0
+	10.0.0.3
+	255.0.0.0
+	N/A
+	PC0
+	Fa0
+	10.0.0.2
+	255.0.0.0
+	10.0.0.1
+	Switch0
+	Fa0/1
+	N/A
+	255..0.0.0
+	N/A
+	Fa0/2
+	N/A
+	255..0.0.0
+	N/A
+	
+
+Part 1: Build the Network and verify Connectivity
+In Part 1, you will set up the network topology and configure basic settings, such as the interface IP addresses.
+Set ip address of PC0 as 10.0.0.2 and its default gateways as 10.0.0.1 and assign ip address of Router as 10.0.0.3
+
+
+Part 2: monitoring switch port analyser working in switch 0:
+Switch>enable
+Switch#config terminal
+Switch(config)# moniter session 1 source int  fa0/1
+Switch(config)# moniter session 1 destination int  fa0/2
+Switch(config)#end
+     
+
+
+
+
+3B IMPLEMENTATION OF SNMP AND SYSLOG
+
+
+     
+
+
+
+
+Device
+	Interface
+	IP Address
+	Subnet Mask
+	Default Gateway 
+	R1
+	Fa0
+	172.168.1.1
+	255.255.0.0
+	N/A
+	R2
+	Fa0
+	172.168.2.1
+	255.255.0.0
+	N/A
+	PC0
+	Fa0
+	172.168.1.2
+	255.255.0.0
+	172.168.1.1
+	Switch0
+	Fa0/1
+	N/A
+	255..0.0.0
+	N/A
+	Fa0/2
+	N/A
+	255..0.0.0
+	N/A
+	Fa0/3
+	N/A
+	255..0.0.0
+	N/A
+	
+
+Go to r1 or r2 any can be taken
+R1>enable
+R1#config terminal
+Enter configuration commands, one per line. End with CNTL/Z.
+R1(config)#int fa0/1
+R1(config-if)#ip address 172.168.1.1 255.255.0.0
+R1(config-if)#no shut
+R1(config-if)#exit
+R1(config)#snmp-server community read ro
+R1(config)#snmp-server community write rw
+
+
+     
+Step 2
+Go to pc o then
+Mib browser in desktop
+
+
+     
+     
+     
+
+
+
+
+
+
+b)Syslog
+Topology
+     
+
+
+Addressing Table
+Device
+	Interface
+	IP Address
+	Subnet Mask
+	Default Gateway 
+	R1
+	Fa0/0
+	10.0.0.1
+	255.0.0.0
+	N/A
+	Fa0/1
+	30.0.0.1
+	255.0.0.0
+	N/A
+	PC0
+	Fa0
+	30.0.0.2
+	255.0.0.0
+	30.0.0.1
+	Switch0
+	Fa0/1
+	N/A
+	255..0.0.0
+	N/A
+	Fa0/2
+	N/A
+	255..0.0.0
+	N/A

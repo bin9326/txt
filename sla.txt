@@ -1,0 +1,139 @@
+﻿Aim:- Implement IP SLA (IP Service Level Agreement)
+Topology:
+     
+Addressing Table:
+Device
+	Interface
+	IP Address
+	Subnet Mask
+	Default Gateway 
+	R1
+	S0/0/0
+	1.1.1.1
+	255.0.0.0
+	N/A
+	ISP
+	S0/0/0
+	1.1.1.2
+	255..0.0.0
+	N/A
+	Lo0
+	8.8.8.8
+	255..0.0.0
+	N/A
+	
+
+Part 1: Build the Network and Verify Connectivity
+Step 1: Cable the network as shown in the topology.
+Step 2: Configure basic settings for R1
+Code in R1
+R1>enable
+R1#config terminal
+Enter configuration commands, one per line. End with CNTL/Z.
+R1(config)#int s1/0
+R1(config-if)#ip address 1.1.1.1 255.0.0.0
+R1(config-if)#no shut
+R1(config-if)#ip route 0.0.0.0 0.0.0.0 1.1.1.2
+R1(config)#exit
+
+
+Step 3: Configure basic settings for R2(ISP ROUTER)
+Code in R2
+R2>enable
+R2#config terminal
+Enter configuration commands, one per line. End with CNTL/Z.
+R2(config)#int s1/0
+R2(config-if)#ip address 1.1.1.2 255.0.0.0
+R2(config-if)#clock rate 64000
+R2(config-if)#no shut
+R2(config)#exit
+
+
+Step 4: IN R2 TO CONFIGURE THE ISP ROUTER
+
+
+R2(config)#int loopback 1
+R2(config)#int s1/0
+R2(config-if)#no ip domain-lookup
+R2(config-if)#ip address 8.8.8.8 255.0.0.0
+R2(config-if)#no shut
+R2(config)#exit
+
+
+Step 5: Ping 8.8.8.8 and 1.1.1.2 from R1 AND R2 To check whether the connection is proper
+PING FROM R1
+R1#ping 8.8.8.8
+Type escape sequence to abort
+Sending 5, 100-bytes ICMP Echo to 8.8.8.8, timeout is 2 seconds:
+!!!!
+Success rate is 100 percent (5/5), round-trip min/avg/max = 28/30/40 ms
+R1#ping 1.1.1.2
+Type escape sequence to abort
+Sending 5, 100-bytes ICMP Echo to 8.8.8.8, timeout is 2 seconds:
+!!!!
+Success rate is 100 percent (5/5), round-trip min/avg/max = 28/30/40 ms
+
+
+PINGING FROM R2
+
+
+R2#ping 8.8.8.8
+Type escape sequence to abort
+Sending 5, 100-bytes ICMP Echo to 8.8.8.8, timeout is 2 seconds:
+!!!!
+Success rate is 100 percent (5/5), round-trip min/avg/max = 28/30/40 ms
+
+
+R2#ping 1.1.1.2
+Type escape sequence to abort
+Sending 5, 100-bytes ICMP Echo to 8.8.8.8, timeout is 2 seconds:
+!!!!
+Success rate is 100 percent (5/5), round-trip min/avg/max = 28/30/40 ms
+
+
+PART 2: Configure IP SLA ICMP Echo on R1
+Code in R1
+R1#config terminal
+Enter configuration commands, one per line. End with CNTL/Z.
+R1(config)#ip sla 1
+R1(config-ip-sla)#icmp-echo 8.8.8.8
+R1(config-ip-sla-echo)#frequency 10
+R1(config-ip-sla-echo)#ip sla schedule 1 start-time now life forever
+R1(config)#end
+PART 3: Monitor the IP SLA Operation to check the output
+
+
+Issue the command used to display the IP SLA operation statistics on R1.
+R1# show ip sla statistics
+IPSLAs Latest Operation Statistics
+IPSLA operation id: 22
+Latest RTT: 1 milliseconds
+Latest operation start time: 18:44:45 UTC Thu Sep 22 2022
+Latest operation return code: OK
+Number of successes: 103
+Number of failures: 10
+Operation time to live: Forever
+
+
+R1# show ip sla configuration
+IP SLA Infrastructure Engine-III
+Entry number: 1
+Owner:
+Tag:
+Operation timeout (milliseconds): 5000
+Type of operation to perform: icmp-echo
+Target address/Source address :8.8.8.8/0.0.0.0
+Type of service parameter : 0x0
+Request size (ARR data portion):28
+Verify data: No
+Vrf Name:
+Schedule:
+Operation frequency (seconds): 10 (not considered if randomly scheduled)
+Next Scheduled start time: Start Time already passed
+Group Scheduled: FALSE
+Randomly scheduled: FALSE
+Life (seconds): FALSE
+Entry Agent (seconds): never
+Output R1:
+     
+Output R2:

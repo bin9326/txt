@@ -1,0 +1,193 @@
+﻿1.IMPLEMENT A GRE TUNNEL
+Topology:      
+Addressing Table
+
+
+
+
+Device
+	
+
+Interface
+	
+
+IP Address
+	
+
+Subnet Mask
+	
+
+Default Gateway
+	
+
+
+
+RA
+	G0/0
+	192.168.1.1
+	255.255.255.0
+	N/A
+	S0/0/0
+	20.0.0.2
+	255.255.255.252
+	N/A
+	Tunnel 0
+	10.10.10.1
+	255.255.255.252
+	N/A
+	
+
+
+
+RB
+	G0/0
+	192.168.2.1
+	255.255.255.0
+	N/A
+	S0/0/0
+	30.0.0.2
+	255.255.255.252
+	N/A
+	Tunnel 0
+	10.10.10.2
+	255.255.255.252
+	N/A
+	PC-A
+	NIC
+	192.168.1.2
+	255.255.255.0
+	192.168.1.1
+	PC-C
+	NIC
+	192.168.2.2
+	255.255.255.0
+	192.168.2.1
+	
+
+Part 1: Verify Router Connectivity
+
+
+Configuring RA
+Router>enable
+Router#configure terminal
+Enter configuration commands, one per line. End with CNTL/Z.
+Router(config)#interface GigabitEthernet0/1
+Router(config-if)#ip address 192.168.1.1 255.255.255.0
+Router(config-if)#no shutdown
+
+
+Router(config)#interface Serial0/0/0
+Router(config-if)#ip address 20.0.0.2 255.255.255.252
+Router(config-if)#clock rate 64000
+Router(config-if)#no shutdown
+
+
+Configuring RB
+Router>enable
+Router#configure terminal
+Enter configuration commands, one per line. End with CNTL/Z.
+Router(config)#interface GigabitEthernet0/1
+Router(config-if)#ip address 192.168.2.1 255.255.255.0
+Router(config-if)#no shutdown
+
+
+Router>enable
+Router#configure terminal
+Router(config)#interface Serial0/0/1
+Router(config-if)#ip address 30.0.0.2 255.255.255.252
+Router(config-if)#clock rate 64000
+This command applies only to DCE interfaces
+Router(config-if)#no shutdown
+
+
+Configuring RC
+
+
+Router>enable
+Router#
+Router#configure terminal
+Router(config)#interface Serial0/0/0
+Router(config-if)#ip address 20.0.0.1 255.255.255.252
+Router(config-if)#clock rate 64000
+This command applies only to DCE interfaces
+Router(config-if)#no shutdown
+
+
+
+
+Router>enable
+Router#configure terminal
+Router(config)#interface Serial0/0/0
+Router(config-if)#ip address 20.0.0.1 255.255.255.252
+Router(config-if)#clock rate 64000
+This command applies only to DCE interfaces
+Router(config-if)#no shutdown
+
+
+NOW RIP ALL THE ROUTER
+
+
+RA
+Router(config)#router rip
+Router(config-router)# network 20.0.0.0
+
+
+RB
+Router(config)#router rip
+Router(config-router)#network 192.168.2.0
+Router(config-router)#network 30.0.0.0
+
+
+RC
+Router(config)#router rip
+Router(config-router)#network 20.0.0.0
+Router(config-router)#network 30.0.0.0
+
+
+
+
+Part 2: Configure GRE Tunnels
+
+
+Step 1: Configure the Tunnel 0 interface of RA.
+Router>EN
+Router#conf t
+Router(config)#int tunnel 0
+Router(config-if)#ip address 10.10.10.1 255.255.255.252
+Router(config-if)#tunnel source s0/0/0
+Router(config-if)#tunnel destination 30.0.0.2
+Router(config-if)#tunnel mode gre ip
+Router(config-if)#no shut
+Router(config-if)#exit
+Router(config)#ip route 192.168.2.0 255.255.255.0 10.10.10.2
+
+
+Step 2: Configure the Tunnel 0 interface of RB.
+Router>en
+Router#conf t
+Enter configuration commands, one per line. End with CNTL/Z.
+Router(config)#int tunnel 0
+Router(config-if)#ip address 10.10.10.2 255.255.255.252
+Router(config-if)#tunnel source s0/0/1
+Router(config-if)#tunnel destination 20.0.0.2
+Router(config-if)#tunnel mode gre ip
+Router(config-if)#no shut
+Router(config-if)#ip route 192.168.1.0 255.255.255.0 10.10.10.1
+Router(config)#
+
+
+Step 3: Configure a route for private IP traffic.
+Router(config)#ip route 192.168.2.0 255.255.255.0 10.10.10.2
+Router(config-if)#ip route 192.168.1.0 255.255.255.0 10.10.10.1
+
+
+Part 3: Verify Router Connectivity
+
+
+Step 1: Ping PCA from PCB.
+
+
+Attempt to ping the IP address of PCA from PCB. The ping should be successful.
+
+
+Step 2: Trace the path from PCA to PCB.

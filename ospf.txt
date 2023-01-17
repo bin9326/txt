@@ -1,0 +1,347 @@
+﻿Implement Single channel OSPFv2
+Topology
+     
+
+
+Addressing Table
+Device
+	Interface
+	IP Address
+	Subnet Mask
+	Default Gateway
+	R1
+	G0/0
+	192.168.1.1
+	255.255.255.0
+	N/A
+	
+
+	S0/0/0 (DCE)
+	192.168.12.1
+	255.255.255.252 
+	N/A
+	
+
+	S0/0/1
+	192.168.13.1
+	255.255.255.252 
+	N/A
+	R2
+	G0/0
+	192.168.2.1
+	255.255.255.0
+	N/A
+	
+
+	S0/0/0
+	192.168.12.2
+	255.255.255.252 
+	N/A
+	
+
+	S0/0/1 (DCE)
+	192.168.23.1
+	255.255.255.252 
+	N/A
+	R3
+	G0/0
+	192.168.3.1
+	255.255.255.0
+	N/A
+	
+
+	S0/0/0 (DCE)
+	192.168.13.2
+	255.255.255.252 
+	N/A
+	
+
+	S0/0/1
+	192.168.23.2
+	255.255.255.252 
+	N/A
+	PC-A
+	NIC
+	192.168.1.3
+	255.255.255.0
+	192.168.1.1
+	PC-B
+	NIC
+	192.168.2.3
+	255.255.255.0
+	192.168.2.1
+	
+
+PC-C
+	NIC
+	192.168.3.3
+	255.255.255.0
+	192.168.3.1
+	
+
+Part 1: Build the Network and Configure Basic Device Settings
+In Part 1, you set up the network topology and configure basic settings on the PC hosts and routers.
+
+
+Step 1:Cable the network as shown in the topology.
+Step 2:Configure basic settings for each router.
+
+
+On R1:
+Router>enable
+Router#configure terminal
+Router(config)#interface GigabitEthernet0/0
+Router(config-if)#ip address 192.168.1.1 255.255.255.0
+Router(config-if)#no shutdown
+Router(config-if)#exit
+
+
+Router(config)#interface Serial0/0/0
+Router(config-if)#ip address 192.168.12.1 255.255.255.252
+Router(config-if)#clock rate 64000
+Router(config-if)#no shutdown
+Router(config-if)#exit
+
+
+Router(config)#interface Serial0/0/1
+Router(config-if)#ip address 192.168.13.2 255.255.255.252
+Router(config-if)#no shutdown
+Do the same to configure the R2 and R3 router as well according to the addressing table. Assign the respective ip address to the PC 
+
+
+Part 2:Configure and Verify OSPF Routing
+In Part 2, you will configure OSPFv2 routing on all routers in the network and then verify that routing tables are updated correctly. After OSPF has been verified, you will configure OSPF authentication on the links for added security.
+
+
+Step 1:Configure OSPF on R1.
+Use the router ospf command in global configuration mode to enable OSPF on R1.
+Router(config)# router ospf 1
+Note: The OSPF process id is kept locally and has no meaning to other routers on the network.
+
+
+Configure the network statements for the networks on R1. Use an area ID of 0.
+Router(config-router)# network 192.168.1.0 0.0.0.255 area 0
+Router(config-router)# network 192.168.12.0 0.0.0.3 area 0
+Router(config-router)# network 192.168.13.0 0.0.0.3 area 0
+
+
+     
+
+
+Step 1B: Configure OSPF on R2 and R3.
+Use the router ospf command and add the network statements for the networks on R2 and R3. Neighbor  adjacency messages display on R1 when OSPF routing is configured on R2 and R3.
+On R2:
+Router(config)#router ospf 1
+Router(config-router)#network 192.168.2.0 0.0.0.255 area 0
+Router(config-router)#network 192.168.12.0 0.0.0.3 area 0
+Router(config-router)#network 192.168.23.0 0.0.0.3 area 0
+Router(config)#exit
+     
+On R3        :
+Router(config)#router ospf 1
+Router(config-router)#network 192.168.3.0 0.0.0.255 area 0
+Router(config-router)#network 192.168.13.0 0.0.0.3 area 0
+Router(config-router)#network 192.168.23.0 0.0.0.3 area 0
+Router(config-router)#exit
+
+
+     
+
+
+Step 2: Check the connectivity
+Ping from PC-B to PC-A after configuring OSPF and check the route with the help of tracert command
+So see the route
+     
+
+
+Step 3:Verify OSPF neighbors and routing information.
+Issue the show ip ospf neighbor command to verify that each router lists the other routers in the network as neighbors.
+Issue the show ip route command to verify that all networks display in the routing table on all routers.
+
+
+     
+
+
+Step 4: Verify OSPF protocol settings.
+The show ip protocols command is a quick way to verify vital OSPF configuration information. This information includes the OSPF process ID, the router ID, networks the router is advertising, the neighbors the router is receiving updates from, and the default administrative distance, which is 110 for OSPF.
+     
+Step 5:Verify OSPF interface settings.
+Issue the show ip ospf interface brief command to display a summary of OSPF-enabled interfaces.
+     
+
+
+
+
+Implement Multi channel OSPFv2
+Topology
+     
+Addressing Table
+
+
+Device
+	Interface
+	IP Address
+	Subnet Mask
+	Default Gateway
+	R1
+	G0/0
+	192.168.1.1/24
+	255.255.255.0
+	N/A
+	S0/0/0 (DCE)
+	192.168.12.1/30
+	255.255.255.252
+	N/A
+	S0/0/1
+	192.168.15.2/30
+	255.255.255.252
+	N/A
+	R2
+	G0/0
+	192.168.2.1/24
+	255.255.255.0
+	N/A
+	S0/0/0
+	192.168.12.2/30
+	255.255.255.252
+	N/A
+	S0/0/1 (DCE)
+	192.68.13.1/30
+	255.255.255.252
+	N/A
+	R3
+	G0/0
+	192.168.3.1/24
+	255.255.255.0
+	N/A
+	S0/0/0 (DCE)
+	192.168.14.1/30
+	255.255.255.252
+	N/A
+	S0/0/1
+	192.168.13.2/30
+	255.255.255.252
+	N/A
+	R4
+	G0/0
+	192.168.4.1/24
+	255.255.255.0
+	N/A
+	S0/0/0
+	192.168.14.2/30
+	255.255.255.252
+	N/A
+	S0/0/1 (DCE)
+	192.168.15.1/30
+	255.255.255.252
+	N/A
+	PC-A
+	NIC
+	192.168.1.3
+	255.255.255.0
+	192.168.1.1
+	
+
+PC-B
+	NIC
+	192.168.2.3
+	255.255.255.0
+	192.168.2.1
+	PC-C
+	NIC
+	192.168.3.3
+	255.255.255.0
+	192.168.3.1
+	PC-D
+	NIC
+	192.168.4.3
+	255.255.255.0
+	192.168.4.1
+	Part 1: Build the Network and Configure Basic Device Settings
+In Part 1, you set up the network topology and configure basic settings on the PC hosts and routers.
+
+
+Step 1:Cable the network as shown in the topology.
+Step 2:Configure basic settings for each router.
+
+
+On R1:
+Router>enable
+Router#configure terminal
+Router(config)#interface GigabitEthernet0/0
+Router(config-if)#ip address 192.168.1.1 255.255.255.0
+Router(config-if)#no shutdown
+Router(config-if)#exit
+
+
+Router(config)#interface Serial0/0/0
+Router(config-if)#ip address 192.168.12.1 255.255.255.252
+Router(config-if)#clock rate 64000
+Router(config-if)#no shutdown
+Router(config-if)#exit
+
+
+Router(config)#interface Serial0/0/1
+Router(config-if)#ip address 192.168.15.2 255.255.255.252
+Router(config-if)#no shutdown
+Do the same to configure the R2 ,R3 and R4 router as well according to the addressing table.Assign the respective ip address to the PC 
+
+
+
+
+Part 2:Configure and Verify OSPF Routing
+In Part 2, you will configure OSPFv2 routing on all routers in the network and then verify that routing tables are updated correctly. After OSPF has been verified, you will configure OSPF authentication on the links for   added security.
+
+
+On R1:
+R1(config)#router ospf 1
+R1(config-router)#network 192.168.1.0 0.0.0.255 area 0
+R1(config-router)#network 192.168.15.0 0.0.0.3 area 0
+R1(config-router)#network 192.168.12.0 0.0.0.3 area 0
+
+
+On R2
+R2(config)#router ospf 1
+R2(config-router)#network 192.168.2.0 0.0.0.255 area 1
+R2(config-router)#network 192.168.12.0 0.0.0.3 area 0
+R2(config-router)#network 192.168.13.0 0.0.0.3 area 1
+R2(config-router)#network 192.168.14.0 0.0.0.3 area 2
+
+
+On R3:
+R3(config)#router ospf 1
+R3(config-router)#network 192.168.3.0 0.0.0.255 area 2
+R3(config-router)#network 192.168.13.0 0.0.0.3 area 1
+R3(config-router)#network 192.168.12.0 0.0.0.3 area 0
+R3(config-router)#network 192.168.14.0 0.0.0.3 area 2
+
+
+
+
+On R4:
+R4(config)#router ospf 1
+R4(config-router)#network 192.168.4.0 0.0.0.255 area 0
+R4(config-router)#network 192.168.15.0 0.0.0.3 area 0
+R4(config-router)#network 192.168.14.0 0.0.0.3 area 2
+R4(config-router)#network 192.168.13.0 0.0.0.3 area 1
+
+
+Step 2: Check the connectivity
+Ping from PC-A to PC-C after configuring OSPF and check the route with the help of tracert command
+So see the route
+
+
+     
+
+
+Step 3:Verify OSPF neighbors and routing information.
+Issue the show ip ospf neighbor command to verify that each router lists the other routers in the network as neighbors.
+Issue the show ip route command to verify that all networks display in the routing table on all routers.
+     
+Step 4:Verify OSPF protocol settings.
+The show ip protocols command is a quick way to verify vital OSPF configuration information. This information includes the OSPF process ID, the router ID, networks the router is advertising, the neighbors the router is receiving updates from, and the default administrative distance, which is 110 for OSPF.
+     
+
+
+Step 5:Verify OSPF interface settings.
+Issue the show ip ospf interface brief command to display a summary of OSPF-enabled interfaces.
